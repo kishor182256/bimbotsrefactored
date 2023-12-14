@@ -9,3 +9,5 @@ export const defaultLineOptions = {
   strokeUniform: true,
   noScaleCache: false,
 };
+
+export const ZOOM_STEP = 0.2;
