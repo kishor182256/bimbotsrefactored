@@ -110,19 +110,19 @@ function handleResize(callback) {
   return resize_ob;
 }
 
-function resizeCanvas(canvas, whiteboard) {
+function resizeCanvas(canvas, mainboard) {
   return () => {
     const ratio = canvas.getWidth() / canvas.getHeight();
-    const whiteboardWidth = whiteboard.clientWidth;
+    const mainboardWidth = mainboard.clientWidth;
 
-    const scale = whiteboardWidth / canvas.getWidth();
+    const scale = mainboardWidth / canvas.getWidth();
     const zoom = canvas.getZoom() * scale;
-    canvas.setDimensions({ width: whiteboardWidth, height: whiteboardWidth / ratio });
+    canvas.setDimensions({ width: mainboardWidth, height: mainboardWidth / ratio });
     canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
   };
 }
 
-const WhiteBoard = ({ aspectRatio = 4 / 3 }) => {
+const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   const [canvas, setCanvas] = useState(null);
   const [fileReaderInfo, setFileReaderInfo] = useState({
     file: '',
@@ -131,17 +131,17 @@ const WhiteBoard = ({ aspectRatio = 4 / 3 }) => {
     currentPage: '',
   });
   const canvasRef = useRef(null);
-  const whiteboardRef = useRef(null);
+  const mainboardRef = useRef(null);
 
   useEffect(() => {
     if (!canvas && canvasRef.current) {
       const canvas = initCanvas(
-        whiteboardRef.current.clientWidth,
-        whiteboardRef.current.clientWidth / aspectRatio,
+        mainboardRef.current.clientWidth,
+        mainboardRef.current.clientWidth / aspectRatio,
       );
       setCanvas(() => canvas);
 
-      handleResize(resizeCanvas(canvas, whiteboardRef.current)).observe(whiteboardRef.current);
+      handleResize(resizeCanvas(canvas, mainboardRef.current)).observe(mainboardRef.current);
     }
   }, [canvasRef]);
 
@@ -171,7 +171,7 @@ const WhiteBoard = ({ aspectRatio = 4 / 3 }) => {
   }
 
   return (
-    <div ref={whiteboardRef} className={styles.whiteboard}>
+    <div ref={mainboardRef} className={styles.mainboard}>
       <div className={styles.toolbar}>
         <div className={styles.header}>
           <label htmlFor="fileInput">
@@ -201,4 +201,4 @@ const WhiteBoard = ({ aspectRatio = 4 / 3 }) => {
   );
 };
 
-export default WhiteBoard;
+export default MainBoard;
