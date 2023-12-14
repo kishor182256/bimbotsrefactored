@@ -1,0 +1,51 @@
+.whiteboard {
+  display: flex;
+  flex-direction: column;
+  
+  canvas {
+    border: none;
+    border-radius: none;
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background-color: #1a73e8;
+
+  input {
+    margin: 0 2px;
+  }
+
+  .inputbutton {
+    background: #3498DB; 
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    display: none;
+  }
+
+  label{
+    margin: 10px;
+     cursor: pointer;
+  }
+
+  button{
+    background: #624cf0;
+    width: fit-content;
+    height: fit-content;
+  }
+}

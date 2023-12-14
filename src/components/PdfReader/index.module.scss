@@ -1,0 +1,25 @@
+.pdfReader {
+  button {
+    padding: 12px;
+    margin: 1px;
+    background-color: #0a0ef4;
+    border-radius: 3px;
+    color: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #1518f0;
+    }
+  }
+}
+
+.fileContainer {
+  display: none;
+}
+
+.pageInfo {
+  display: flex;
+  align-items: center;
+}
