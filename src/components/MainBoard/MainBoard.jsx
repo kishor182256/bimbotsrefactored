@@ -153,8 +153,8 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
           top: center.top,
           left: center.left,
-          originX: 'center',
-          originY: 'center',
+          // originX: 'center',
+          // originY: 'center',
         });
 
         canvas.renderAll();
