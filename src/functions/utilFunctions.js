@@ -30,17 +30,7 @@ function handleLineClick(event) {
   console.log('Line Clicked:', event.target);
 }
 
-export function resizeCanvas(canvas, mainboard) {
-  return () => {
-    const ratio = canvas.getWidth() / canvas.getHeight();
-    const mainboardWidth = mainboard.clientWidth;
 
-    const scale = mainboardWidth / canvas.getWidth();
-    const zoom = canvas.getZoom() * scale;
-    canvas.setDimensions({ width: mainboardWidth, height: mainboardWidth / ratio });
-    canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
-  };
-}
 
 export function startAddLine(canvas, width) {
   return ({ e }) => {
@@ -76,7 +66,7 @@ export function startDrawingLine(canvas) {
   };
 }
 
-export function createLine(canvas) {
+export const createLine=(canvas)=>{
   if (modes.currentMode !== modes.LINE) {
     options.currentMode = modes.LINE;
 
@@ -92,4 +82,49 @@ export function createLine(canvas) {
     canvas.getObjects().map((item) => item.set({ selectable: false }));
     canvas.discardActiveObject().requestRenderAll();
   }
+}
+
+
+export const handleResize=(callback)=> {
+  const resize_ob = new ResizeObserver(callback);
+  return resize_ob;
+}
+
+export const resizeCanvas=(canvas, mainboard)=>{
+  return () => {
+    const ratio = canvas.getWidth() / canvas.getHeight();
+    const mainboardWidth = mainboard.clientWidth;
+
+    const scale = mainboardWidth / canvas.getWidth();
+    const zoom = canvas.getZoom() * scale;
+    canvas.setDimensions({ width: mainboardWidth, height: mainboardWidth / ratio });
+    canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
+  };
+}
+
+
+export const  initCanvas=(width, height)=> {
+  const canvas = new fabric.Canvas('canvas', { height, width });
+  fabric.Object.prototype.transparentCorners = false;
+  fabric.Object.prototype.cornerStyle = 'circle';
+  fabric.Object.prototype.borderColor = '#4447A9';
+  fabric.Object.prototype.cornerColor = '#4447A9';
+  fabric.Object.prototype.cornerSize = 6;
+  fabric.Object.prototype.padding = 10;
+  fabric.Object.prototype.borderDashArray = [5, 5];
+
+  canvas.on('object:added', (e) => {
+    e.target.on('mousedown', removeObject(canvas));
+  });
+  canvas.on('path:created', (e) => {
+    e.path.on('mousedown', removeObject(canvas));
+  });
+
+  return canvas;
+}
+
+function removeObject(canvas) {
+  return (e) => {
+    
+  };
 }

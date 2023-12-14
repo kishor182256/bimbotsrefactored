@@ -3,8 +3,8 @@ import { fabric } from 'fabric';
 import PdfReader from '../PdfReader/PDFReader';
 
 import styles from './index.module.scss';
+import { handleResize, initCanvas, resizeCanvas } from '../../functions/utilFunctions';
 
-let drawInstance = null;
 let mouseDown = false;
 
 const options = {
@@ -13,10 +13,6 @@ const options = {
   currentWidth: 5,
   fill: false,
   group: {},
-};
-
-const modes = {
-  LINE: 'LINE',
 };
 
 const MainBoard = ({ aspectRatio = 4 / 3 }) => {
@@ -68,32 +64,6 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
 
   function updateFileReaderInfo(data) {
     setFileReaderInfo({ ...fileReaderInfo, ...data });
-  }
-
-  function initCanvas(width, height) {
-    const canvas = new fabric.Canvas('canvas', { height, width });
-    fabric.Object.prototype.transparentCorners = false;
-    fabric.Object.prototype.cornerStyle = 'circle';
-    fabric.Object.prototype.borderColor = '#4447A9';
-    fabric.Object.prototype.cornerColor = '#4447A9';
-    fabric.Object.prototype.cornerSize = 6;
-    fabric.Object.prototype.padding = 10;
-    fabric.Object.prototype.borderDashArray = [5, 5];
-
-    canvas.on('object:added', (e) => {
-      e.target.on('mousedown', removeObject(canvas));
-    });
-    canvas.on('path:created', (e) => {
-      e.path.on('mousedown', removeObject(canvas));
-    });
-
-    return canvas;
-  }
-
-  function removeObject(canvas) {
-    return (e) => {
-      // Add logic for removing objects if needed
-    };
   }
 
   function createLine(canvas) {
@@ -154,23 +124,6 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     });
   }
 
-  function handleResize(callback) {
-    const resize_ob = new ResizeObserver(callback);
-    return resize_ob;
-  }
-
-  function resizeCanvas(canvas, mainboard) {
-    return () => {
-      const ratio = canvas.getWidth() / canvas.getHeight();
-      const mainboardWidth = mainboard.clientWidth;
-
-      const scale = mainboardWidth / canvas.getWidth();
-      const zoom = canvas.getZoom() * scale;
-      canvas.setDimensions({ width: mainboardWidth, height: mainboardWidth / ratio });
-      canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
-    };
-  }
-
   return (
     <div ref={mainboardRef} className={styles.mainboard}>
       <div className={styles.toolbar}>
@@ -178,18 +131,10 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
           <label htmlFor="fileInput">
             <div className={styles.inputbutton}>
               <span>Upload PDF</span>
-              <input
-                type="file"
-                id="fileInput"
-                onChange={onFileChange}
-              />
+              <input type="file" id="fileInput" onChange={onFileChange} />
             </div>
           </label>
-          <button
-            type="button"
-            onClick={() => createLine(canvas)}
-            disabled={!fileReaderInfo.file}
-          >
+          <button type="button" onClick={() => createLine(canvas)} disabled={!fileReaderInfo.file}>
             Line
           </button>
         </div>
@@ -213,28 +158,3 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
 };
 
 export default MainBoard;
-
-
-{/* <div ref={mainboardRef} className={styles.mainboard}>
-      <div className={styles.toolbar}>
-        <label htmlFor="fileInput">
-          <div className={styles.inputbutton}>
-            <input type="file" id="fileInput" onChange={onFileChange} />
-          </div>
-        </label>
-        <button type="button" onClick={() => createLine(canvas)} disabled={!fileReaderInfo.file}>
-          Line
-        </button>
-      </div>
-      <canvas ref={canvasRef} id="canvas" />
-      <div>
-        {drawnLines.map((drawnLine, index) => (
-          <div key={index}>
-            <p>
-              Line {index + 1}: Start Point ({drawnLine.startText.text}), End Point (
-              {drawnLine.endText.text})
-            </p>
-          </div>
-        ))}
-      </div>
-    </div> */}
