@@ -58,6 +58,21 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     }
   }, [fileReaderInfo.currentPage]);
 
+  useEffect(() => {
+    if (canvas) {
+      canvas.on('mouse:wheel', (event) => {
+        const delta = event.e.deltaY;
+        let zoom = canvas.getZoom();
+        zoom = zoom + delta / 1000;
+        if (zoom > 5) zoom = 5;
+        if (zoom < 0.1) zoom = 0.1;
+        canvas.zoomToPoint({ x: event.e.offsetX, y: event.e.offsetY }, zoom);
+        event.e.preventDefault();
+        event.e.stopPropagation();
+      });
+    }
+  }, [canvas]);
+
   function onFileChange(event) {
     updateFileReaderInfo({ file: event.target.files[0], currentPageNumber: 1 });
   }
@@ -138,16 +153,6 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
             Line
           </button>
         </div>
-      </div>
-      <div>
-        {drawnLines.map((drawnLine, index) => (
-          <div key={index}>
-            <p>
-              Line {index + 1}: Start Point ({drawnLine.startText.text}), End Point (
-              {drawnLine.endText.text})
-            </p>
-          </div>
-        ))}
       </div>
       <canvas ref={canvasRef} id="canvas" />
       <div>
