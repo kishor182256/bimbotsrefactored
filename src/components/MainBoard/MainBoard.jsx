@@ -81,8 +81,24 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     setFileReaderInfo({ ...fileReaderInfo, ...data });
   }
 
+  const onKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      mouseDown = false;
+    }
+  };
+
+  useEffect(() => {
+    const cleanup = () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+
+    return cleanup;
+  }, []);
+
   function createLine(canvas) {
     let currentLine = null;
+
+    document.addEventListener('keydown', onKeyDown);
 
     canvas.on('mouse:down', (event) => {
       mouseDown = true;
@@ -134,7 +150,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     });
 
     canvas.on('mouse:up', () => {
-      mouseDown = false;
+      mouseDown = true;
       setDrawnLines((prevLines) => [...prevLines, currentLine]);
     });
   }
