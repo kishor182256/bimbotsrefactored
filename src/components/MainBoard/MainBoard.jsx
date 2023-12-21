@@ -1,19 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 import PdfReader from '../PdfReader/PDFReader';
-
-import styles from './index.module.scss';
 import { handleResize, initCanvas, resizeCanvas } from '../../functions/utilFunctions';
+import styles from './index.module.scss';
+import { standardSizes } from '../../corninates/distancePoints';
 
 let mouseDown = false;
 
-const options = {
-  currentMode: '',
-  currentColor: '#000000',
-  currentWidth: 5,
-  fill: false,
-  group: {},
-};
+
 
 const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   const [canvas, setCanvas] = useState(null);
@@ -25,9 +19,14 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   });
 
   const [drawnLines, setDrawnLines] = useState([]);
+  const [selectedPaperSize, setSelectedPaperSize] = useState('');
 
   const canvasRef = useRef(null);
   const mainboardRef = useRef(null);
+
+  const onPaperSizeChange = (event) => {
+    setSelectedPaperSize(event.target.value);
+  };
 
   useEffect(() => {
     if (!canvas && canvasRef.current) {
@@ -35,8 +34,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
         mainboardRef.current.clientWidth,
         mainboardRef.current.clientWidth / aspectRatio,
       );
-      setCanvas(() => canvas);
-
+      setCanvas(canvas);
       handleResize(resizeCanvas(canvas, mainboardRef.current)).observe(mainboardRef.current);
     }
   }, [canvasRef]);
@@ -52,11 +50,10 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
           originX: 'center',
           originY: 'center',
         });
-
         canvas.renderAll();
       });
     }
-  }, [fileReaderInfo.currentPage]);
+  }, [fileReaderInfo.currentPage, selectedPaperSize]);
 
   useEffect(() => {
     if (canvas) {
@@ -78,7 +75,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   }
 
   function updateFileReaderInfo(data) {
-    setFileReaderInfo({ ...fileReaderInfo, ...data });
+    setFileReaderInfo((prevInfo) => ({ ...prevInfo, ...data }));
   }
 
   const onKeyDown = (event) => {
@@ -91,13 +88,11 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     const cleanup = () => {
       document.removeEventListener('keydown', onKeyDown);
     };
-
     return cleanup;
   }, []);
 
   function createLine(canvas) {
     let currentLine = null;
-
     document.addEventListener('keydown', onKeyDown);
 
     canvas.on('mouse:down', (event) => {
@@ -105,7 +100,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       let pointer = canvas.getPointer(event.e);
 
       const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
-        strokeWidth: options.currentWidth,
+        strokeWidth: 5, // You can adjust the default width here
         stroke: 'red',
         selectable: false,
       });
@@ -155,6 +150,34 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     });
   }
 
+  const calculateScale = () => {
+    if (canvas && fileReaderInfo.currentPage && selectedPaperSize) {
+      const pdfWidth = canvas.backgroundImage.width;
+      const pdfHeight = canvas.backgroundImage.height;
+
+      let paperSize = 'Unknown';
+      let targetWidth, targetHeight;
+
+      standardSizes.forEach((size) => {
+        if (size.name === selectedPaperSize) {
+          paperSize = size.name;
+          targetWidth = size.width * 72; // Convert inches to points
+          targetHeight = size.height * 72;
+        }
+      });
+
+      if (targetWidth && targetHeight) {
+        const scaleX = targetWidth / pdfWidth;
+        const scaleY = targetHeight / pdfHeight;
+
+        canvas.setZoom(Math.min(scaleX, scaleY));
+        canvas.renderAll();
+      } else {
+        alert('Invalid paper size selected.');
+      }
+    }
+  };
+
   return (
     <div ref={mainboardRef} className={styles.mainboard}>
       <div className={styles.toolbar}>
@@ -168,11 +191,28 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
           <button type="button" onClick={() => createLine(canvas)} disabled={!fileReaderInfo.file}>
             Line
           </button>
+          <select value={selectedPaperSize} onChange={onPaperSizeChange}>
+            <option value="">Select Paper Size</option>
+            {standardSizes.map((size) => (
+              <option key={size.name} value={size.name}>
+                {size.name}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={calculateScale} disabled={!fileReaderInfo.file}>
+            Scale
+          </button>
         </div>
       </div>
       <canvas ref={canvasRef} id="canvas" />
       <div>
-        <PdfReader fileReaderInfo={fileReaderInfo} updateFileReaderInfo={updateFileReaderInfo} />
+        <PdfReader
+          fileReaderInfo={fileReaderInfo}
+          fabric={fabric}
+          canvas={canvas}
+          updateFileReaderInfo={updateFileReaderInfo}
+          selectedPaperSize={selectedPaperSize}
+        />
       </div>
     </div>
   );

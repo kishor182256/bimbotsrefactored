@@ -12,14 +12,25 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  background-color: #1a73e8;
+  background-color: #fff;
+  justify-content: space-between;
+  .logo {
+    top: 50%;
+    
+    font-size: 30px;
+    font-weight: bold;
+    color: #000; 
+    margin-right: 3%;
+  }
 
   input {
     margin: 0 2px;
   }
 
+  
+
   .inputbutton {
-    background: #3498DB; 
+    background: #000; 
     color: #fff;
     padding: 10px;
     border: none;
@@ -33,6 +44,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  
 
   input {
     display: none;
@@ -44,8 +56,9 @@
   }
 
   button{
-    background: #624cf0;
+    background: #000;
     width: fit-content;
     height: fit-content;
+    color: #fff;
   }
 }

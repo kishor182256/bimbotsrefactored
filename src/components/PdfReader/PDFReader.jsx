@@ -1,10 +1,10 @@
-import React from 'react';
-import { Document, Page,pdfjs} from 'react-pdf';
+import React, { useEffect } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
 import styles from './index.module.scss';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const PDFReader = ({ fileReaderInfo, updateFileReaderInfo }) => {
+const PDFReader = ({ fileReaderInfo, updateFileReaderInfo, fabric, canvas, selectedPaperSize }) => {
   function onRenderSuccess() {
     const importPDFCanvas = document.querySelector('.import-pdf-page canvas');
     const pdfAsImageSrc = importPDFCanvas.toDataURL();
@@ -15,6 +15,27 @@ const PDFReader = ({ fileReaderInfo, updateFileReaderInfo }) => {
   function onDocumentLoadSuccess({ numPages }) {
     updateFileReaderInfo({ totalPages: numPages });
   }
+
+  const renderCanvas = () => {
+    if (canvas) {
+      const center = canvas.getCenter();
+      fabric.Image.fromURL(fileReaderInfo.currentPage, (img) => {
+        img.scaleToHeight(canvas.height);
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          top: center.top,
+          left: center.left,
+          originX: 'center',
+          originY: 'center',
+        });
+
+        canvas.renderAll();
+      });
+    }
+  };
+
+  useEffect(() => {
+    renderCanvas();
+  }, [fileReaderInfo.currentPage, selectedPaperSize, fabric, canvas]);
 
   return (
     <div className={styles.pdfReader}>
@@ -39,3 +60,7 @@ const PDFReader = ({ fileReaderInfo, updateFileReaderInfo }) => {
 };
 
 export default PDFReader;
+
+
+
+
