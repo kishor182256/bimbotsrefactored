@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import PdfReader from '../PdfReader/PDFReader';
 import { handleResize, initCanvas, resizeCanvas } from '../../functions/utilFunctions';
 import styles from './index.module.scss';
-import { standardSizes } from '../../corninates/distancePoints';
+import { distanceRatio, standardSizes } from '../../corninates/distancePoints';
 
 let mouseDown = false;
 
@@ -20,12 +20,17 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
 
   const [drawnLines, setDrawnLines] = useState([]);
   const [selectedPaperSize, setSelectedPaperSize] = useState('');
+  const [selectedDistanceRatio, setSelectedDistanceRatio] = useState('1:10');
 
   const canvasRef = useRef(null);
   const mainboardRef = useRef(null);
 
   const onPaperSizeChange = (event) => {
     setSelectedPaperSize(event.target.value);
+  };
+
+  const onDistanceRatioChange = (event) => {
+    setSelectedDistanceRatio(event.target.value);
   };
 
   useEffect(() => {
@@ -187,6 +192,34 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
 
 
 
+  // const calculateScale = () => {
+  //   if (canvas && fileReaderInfo.currentPage && selectedPaperSize) {
+  //     const pdfWidth = canvas.backgroundImage.width;
+  //     const pdfHeight = canvas.backgroundImage.height;
+
+  //     let paperSize = 'Unknown';
+  //     let targetWidth, targetHeight;
+
+  //     standardSizes.forEach((size) => {
+  //       if (size.name === selectedPaperSize) {
+  //         paperSize = size.name;
+  //         targetWidth = size.width * 72; 
+  //         targetHeight = size.height * 72;
+  //       }
+  //     });
+
+  //     if (targetWidth && targetHeight) {
+  //       const scaleX = targetWidth / pdfWidth;
+  //       const scaleY = targetHeight / pdfHeight;
+
+  //       canvas.setZoom(Math.min(scaleX, scaleY));
+  //       canvas.renderAll();
+  //     } else {
+  //       alert('Invalid paper size selected.');
+  //     }
+  //   }
+  // };
+
   const calculateScale = () => {
     if (canvas && fileReaderInfo.currentPage && selectedPaperSize) {
       const pdfWidth = canvas.backgroundImage.width;
@@ -198,14 +231,17 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       standardSizes.forEach((size) => {
         if (size.name === selectedPaperSize) {
           paperSize = size.name;
-          targetWidth = size.width * 72; 
+          targetWidth = size.width * 72;
           targetHeight = size.height * 72;
         }
       });
 
+      let distanceRatioParts = selectedDistanceRatio.split(':');
+      let distanceScale = parseFloat(distanceRatioParts[1]) / parseFloat(distanceRatioParts[0]);
+
       if (targetWidth && targetHeight) {
-        const scaleX = targetWidth / pdfWidth;
-        const scaleY = targetHeight / pdfHeight;
+        const scaleX = (targetWidth / pdfWidth) * distanceScale; // Modified line
+        const scaleY = (targetHeight / pdfHeight) * distanceScale; // Modified line
 
         canvas.setZoom(Math.min(scaleX, scaleY));
         canvas.renderAll();
@@ -214,8 +250,6 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       }
     }
   };
-
- 
 
   return (
     <div ref={mainboardRef} className={styles.mainboard}>
@@ -235,6 +269,13 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
             {standardSizes.map((size) => (
               <option key={size.name} value={size.name}>
                 {size.name}
+              </option>
+            ))}
+          </select>
+          <select value={selectedDistanceRatio} onChange={onDistanceRatioChange}> {/* Step 2 */}
+            {distanceRatio.map((ratio) => (
+              <option key={ratio} value={ratio}>
+                {ratio}
               </option>
             ))}
           </select>
