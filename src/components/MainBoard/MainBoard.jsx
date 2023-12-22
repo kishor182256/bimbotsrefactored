@@ -36,12 +36,27 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       );
       setCanvas(canvas);
       handleResize(resizeCanvas(canvas, mainboardRef.current)).observe(mainboardRef.current);
+      const horizontalLine = new fabric.Line([0, canvas.height / 2, canvas.width, canvas.height / 2], {
+        strokeWidth: 1,
+        stroke: 'blue',
+        selectable: false,
+      });
+      canvas.add(horizontalLine);
+      const verticalLine = new fabric.Line([canvas.width / 2, 0, canvas.width / 2, canvas.height], {
+        strokeWidth: 1,
+        stroke: 'blue',
+        selectable: false,
+      });
+      canvas.add(verticalLine);
     }
   }, [canvasRef]);
 
   useEffect(() => {
     if (canvas) {
       const center = canvas.getCenter();
+      canvas.clear(); // Clear the canvas before adding new elements
+  
+      // Add background image
       fabric.Image.fromURL(fileReaderInfo.currentPage, (img) => {
         img.scaleToHeight(canvas.height);
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
@@ -52,8 +67,39 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
         });
         canvas.renderAll();
       });
+  
+      // Add coordinate lines
+      const horizontalLine = new fabric.Line([0, canvas.height / 2, canvas.width, canvas.height / 2], {
+        strokeWidth: 1,
+        stroke: 'blue',
+        selectable: false,
+      });
+      const verticalLine = new fabric.Line([canvas.width / 2, 0, canvas.width / 2, canvas.height], {
+        strokeWidth: 1,
+        stroke: 'blue',
+        selectable: false,
+      });
+  
+      canvas.add(horizontalLine, verticalLine);
     }
   }, [fileReaderInfo.currentPage, selectedPaperSize]);
+  
+
+  // useEffect(() => {
+  //   if (canvas) {
+  //     const center = canvas.getCenter();
+  //     fabric.Image.fromURL(fileReaderInfo.currentPage, (img) => {
+  //       img.scaleToHeight(canvas.height);
+  //       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+  //         top: center.top,
+  //         left: center.left,
+  //         originX: 'center',
+  //         originY: 'center',
+  //       });
+  //       canvas.renderAll();
+  //     });
+  //   }
+  // }, [fileReaderInfo.currentPage, selectedPaperSize]);
 
   useEffect(() => {
     if (canvas) {
@@ -91,64 +137,149 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     return cleanup;
   }, []);
 
+  // function createLine(canvas) {
+  //   let currentLine = null;
+  //   document.addEventListener('keydown', onKeyDown);
+
+  //   canvas.on('mouse:down', (event) => {
+  //     mouseDown = true;
+  //     let pointer = canvas.getPointer(event.e);
+
+  //     const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
+  //       strokeWidth: 5, // You can adjust the default width here
+  //       stroke: 'red',
+  //       selectable: false,
+  //     });
+
+  //     const startText = new fabric.Text(`(${pointer.x}, ${pointer.y})`, {
+  //       left: pointer.x,
+  //       top: pointer.y,
+  //       fontSize: 12,
+  //       selectable: false,
+  //     });
+
+  //     const endText = new fabric.Text(`(${pointer.x}, ${pointer.y})`, {
+  //       left: pointer.x,
+  //       top: pointer.y,
+  //       fontSize: 12,
+  //       selectable: false,
+  //     });
+
+  //     currentLine = { line, startText, endText };
+
+  //     canvas.add(line, startText, endText);
+  //     canvas.requestRenderAll();
+  //   });
+
+  //   canvas.on('mouse:move', (event) => {
+  //     if (mouseDown) {
+  //       const pointer = canvas.getPointer(event.e);
+
+  //       currentLine.line.set({
+  //         x2: pointer.x,
+  //         y2: pointer.y,
+  //       });
+
+  //       currentLine.endText.set({
+  //         left: pointer.x,
+  //         top: pointer.y,
+  //         text: `(${pointer.x}, ${pointer.y})`,
+  //       });
+
+  //       canvas.requestRenderAll();
+  //     }
+  //   });
+
+  //   canvas.on('mouse:up', () => {
+  //     mouseDown = true;
+  //     setDrawnLines((prevLines) => [...prevLines, currentLine]);
+  //   });
+  // }
+
   function createLine(canvas) {
-    let currentLine = null;
-    document.addEventListener('keydown', onKeyDown);
+  let currentLine = null;
+  document.addEventListener('keydown', onKeyDown);
 
-    canvas.on('mouse:down', (event) => {
-      mouseDown = true;
-      let pointer = canvas.getPointer(event.e);
+  canvas.on('mouse:down', (event) => {
+    mouseDown = true;
+    let pointer = canvas.getPointer(event.e);
 
-      const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
-        strokeWidth: 5, // You can adjust the default width here
-        stroke: 'red',
-        selectable: false,
+    const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
+      strokeWidth: 5, // You can adjust the default width here
+      stroke: 'red',
+      selectable: false,
+    });
+
+    const startText = new fabric.Text(`(${pointer.x}, ${pointer.y})`, {
+      left: pointer.x,
+      top: pointer.y,
+      fontSize: 12,
+      selectable: false,
+    });
+
+    const endText = new fabric.Text(`(${pointer.x}, ${pointer.y})`, {
+      left: pointer.x,
+      top: pointer.y,
+      fontSize: 12,
+      selectable: false,
+    });
+
+    currentLine = { line, startText, endText };
+
+    canvas.add(line, startText, endText);
+    canvas.requestRenderAll();
+  });
+
+  canvas.on('mouse:move', (event) => {
+    if (mouseDown) {
+      const pointer = canvas.getPointer(event.e);
+
+      currentLine.line.set({
+        x2: pointer.x,
+        y2: pointer.y,
       });
 
-      const startText = new fabric.Text(`(${pointer.x}, ${pointer.y})`, {
+      currentLine.endText.set({
         left: pointer.x,
         top: pointer.y,
-        fontSize: 12,
-        selectable: false,
+        text: `(${pointer.x}, ${pointer.y})`,
       });
 
-      const endText = new fabric.Text(`(${pointer.x}, ${pointer.y})`, {
-        left: pointer.x,
-        top: pointer.y,
-        fontSize: 12,
-        selectable: false,
-      });
-
-      currentLine = { line, startText, endText };
-
-      canvas.add(line, startText, endText);
       canvas.requestRenderAll();
-    });
+    }
+  });
 
-    canvas.on('mouse:move', (event) => {
-      if (mouseDown) {
-        const pointer = canvas.getPointer(event.e);
+  canvas.on('mouse:up', () => {
+    mouseDown = false;
+    setDrawnLines((prevLines) => [...prevLines, currentLine]);
+  });
 
-        currentLine.line.set({
-          x2: pointer.x,
-          y2: pointer.y,
-        });
+  // Adjust line coordinates when the canvas is zoomed
+  canvas.on('zoom', (event) => {
+    if (currentLine) {
+      const zoom = canvas.getZoom();
+      currentLine.line.set({
+        x1: currentLine.line.x1 * zoom,
+        y1: currentLine.line.y1 * zoom,
+        x2: currentLine.line.x2 * zoom,
+        y2: currentLine.line.y2 * zoom,
+      });
 
-        currentLine.endText.set({
-          left: pointer.x,
-          top: pointer.y,
-          text: `(${pointer.x}, ${pointer.y})`,
-        });
+      currentLine.startText.set({
+        left: currentLine.startText.left * zoom,
+        top: currentLine.startText.top * zoom,
+      });
 
-        canvas.requestRenderAll();
-      }
-    });
+      currentLine.endText.set({
+        left: currentLine.endText.left * zoom,
+        top: currentLine.endText.top * zoom,
+      });
 
-    canvas.on('mouse:up', () => {
-      mouseDown = true;
-      setDrawnLines((prevLines) => [...prevLines, currentLine]);
-    });
-  }
+      canvas.requestRenderAll();
+    }
+  });
+}
+
 
   const calculateScale = () => {
     if (canvas && fileReaderInfo.currentPage && selectedPaperSize) {
@@ -161,7 +292,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       standardSizes.forEach((size) => {
         if (size.name === selectedPaperSize) {
           paperSize = size.name;
-          targetWidth = size.width * 72; // Convert inches to points
+          targetWidth = size.width * 72; 
           targetHeight = size.height * 72;
         }
       });
@@ -177,6 +308,8 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       }
     }
   };
+
+ 
 
   return (
     <div ref={mainboardRef} className={styles.mainboard}>
