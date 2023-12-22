@@ -240,8 +240,8 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       let distanceScale = parseFloat(distanceRatioParts[1]) / parseFloat(distanceRatioParts[0]);
 
       if (targetWidth && targetHeight) {
-        const scaleX = (targetWidth / pdfWidth) * distanceScale; // Modified line
-        const scaleY = (targetHeight / pdfHeight) * distanceScale; // Modified line
+        const scaleX = (targetWidth / pdfWidth) * distanceScale; 
+        const scaleY = (targetHeight / pdfHeight) * distanceScale;
 
         canvas.setZoom(Math.min(scaleX, scaleY));
         canvas.renderAll();
@@ -272,7 +272,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
               </option>
             ))}
           </select>
-          <select value={selectedDistanceRatio} onChange={onDistanceRatioChange}> {/* Step 2 */}
+          <select value={selectedDistanceRatio} onChange={onDistanceRatioChange}> 
             {distanceRatio.map((ratio) => (
               <option key={ratio} value={ratio}>
                 {ratio}
