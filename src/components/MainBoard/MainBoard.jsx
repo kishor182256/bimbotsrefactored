@@ -64,8 +64,13 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
           originX: 'center',
           originY: 'center',
         });
+        drawnLines.forEach((lineSet) => {
+          canvas.add(lineSet.line, lineSet.startText, lineSet.endText);
+        });
+  
         canvas.renderAll();
       });
+      
   
       const horizontalLine = new fabric.Line([0, canvas.height / 2, canvas.width, canvas.height / 2], {
         strokeWidth: 1,
