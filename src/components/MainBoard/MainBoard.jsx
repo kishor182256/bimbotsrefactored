@@ -54,9 +54,8 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   useEffect(() => {
     if (canvas) {
       const center = canvas.getCenter();
-      canvas.clear(); // Clear the canvas before adding new elements
+      canvas.clear(); 
   
-      // Add background image
       fabric.Image.fromURL(fileReaderInfo.currentPage, (img) => {
         img.scaleToHeight(canvas.height);
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
@@ -68,7 +67,6 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
         canvas.renderAll();
       });
   
-      // Add coordinate lines
       const horizontalLine = new fabric.Line([0, canvas.height / 2, canvas.width, canvas.height / 2], {
         strokeWidth: 1,
         stroke: 'blue',
@@ -85,21 +83,6 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   }, [fileReaderInfo.currentPage, selectedPaperSize]);
   
 
-  // useEffect(() => {
-  //   if (canvas) {
-  //     const center = canvas.getCenter();
-  //     fabric.Image.fromURL(fileReaderInfo.currentPage, (img) => {
-  //       img.scaleToHeight(canvas.height);
-  //       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-  //         top: center.top,
-  //         left: center.left,
-  //         originX: 'center',
-  //         originY: 'center',
-  //       });
-  //       canvas.renderAll();
-  //     });
-  //   }
-  // }, [fileReaderInfo.currentPage, selectedPaperSize]);
 
   useEffect(() => {
     if (canvas) {
@@ -146,7 +129,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       let pointer = canvas.getPointer(event.e);
 
       const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
-        strokeWidth: 5, // You can adjust the default width here
+        strokeWidth: 5, 
         stroke: 'red',
         selectable: false,
       });
