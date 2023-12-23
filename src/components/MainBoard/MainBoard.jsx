@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import PdfReader from '../PdfReader/PDFReader';
 import { handleResize, initCanvas, resizeCanvas } from '../../functions/utilFunctions';
 import styles from './index.module.scss';
-import { distanceRatio, standardSizes } from '../../corninates/distancePoints';
+import { scalingRatio, standardPaperSizes } from '../../corninates/distancePoints';
 
 let mouseDown = false;
 
@@ -228,7 +228,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       let paperSize = 'Unknown';
       let targetWidth, targetHeight;
 
-      standardSizes.forEach((size) => {
+      standardPaperSizes.forEach((size) => {
         if (size.name === selectedPaperSize) {
           paperSize = size.name;
           targetWidth = size.width * 72;
@@ -266,14 +266,14 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
           </button>
           <select value={selectedPaperSize} onChange={onPaperSizeChange}>
             <option value="">Select Paper Size</option>
-            {standardSizes.map((size) => (
+            {standardPaperSizes.map((size) => (
               <option key={size.name} value={size.name}>
                 {size.name}
               </option>
             ))}
           </select>
           <select value={selectedDistanceRatio} onChange={onDistanceRatioChange}> 
-            {distanceRatio.map((ratio) => (
+            {scalingRatio.map((ratio) => (
               <option key={ratio} value={ratio}>
                 {ratio}
               </option>

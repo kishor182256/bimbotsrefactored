@@ -1,4 +1,4 @@
-export const distanceRatio= [
+export const scalingRatio= [
     "1:10", "1:15", "1:20", "1:25", "1:30",
     "1:40", "1:50", "1:75", "1:100", "1:125", "1:150",
     "1:200", "1:250", "1:300",
@@ -11,7 +11,7 @@ export const distanceRatio= [
   ]
 
 
-  export const standardSizes = [
+  export const standardPaperSizes = [
     { name: 'ARCH A', width: 9, height: 12 },
     { name: 'ARCH B', width: 12, height: 18 },
     { name: 'ARCH C', width: 18, height: 24 },
