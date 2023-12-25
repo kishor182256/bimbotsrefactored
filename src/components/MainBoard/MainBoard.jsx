@@ -7,8 +7,6 @@ import { scalingRatio, standardPaperSizes } from '../../corninates/distancePoint
 
 let mouseDown = false;
 
-
-
 const MainBoard = ({ aspectRatio = 4 / 3 }) => {
   const [canvas, setCanvas] = useState(null);
   const [fileReaderInfo, setFileReaderInfo] = useState({
@@ -24,6 +22,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
 
   const canvasRef = useRef(null);
   const mainboardRef = useRef(null);
+  console.log('selectedDistanceRatio', selectedDistanceRatio);
 
   const onPaperSizeChange = (event) => {
     setSelectedPaperSize(event.target.value);
@@ -41,26 +40,65 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       );
       setCanvas(canvas);
       handleResize(resizeCanvas(canvas, mainboardRef.current)).observe(mainboardRef.current);
-      const horizontalLine = new fabric.Line([0, canvas.height / 2, canvas.width, canvas.height / 2], {
+
+      const center = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+      };
+
+      const verticalAxis = new fabric.Line([center.x, 0, center.x, canvas.height], {
         strokeWidth: 1,
-        stroke: 'blue',
+        stroke: 'black',
         selectable: false,
       });
-      canvas.add(horizontalLine);
-      const verticalLine = new fabric.Line([canvas.width / 2, 0, canvas.width / 2, canvas.height], {
+      canvas.add(verticalAxis);
+
+      const horizontalAxis = new fabric.Line([0, center.y, canvas.width, center.y], {
         strokeWidth: 1,
-        stroke: 'blue',
+        stroke: 'black',
         selectable: false,
       });
-      canvas.add(verticalLine);
+      canvas.add(horizontalAxis);
+
+      const topLeftLabel = new fabric.Text('II', {
+        left: center.x - 20,
+        top: center.y - 20,
+        fontSize: 20,
+        selectable: false,
+      });
+      canvas.add(topLeftLabel);
+
+      const topRightLabel = new fabric.Text('I', {
+        left: center.x + 10,
+        top: center.y - 20,
+        fontSize: 20,
+        selectable: false,
+      });
+      canvas.add(topRightLabel);
+
+      const bottomLeftLabel = new fabric.Text('III', {
+        left: center.x - 20,
+        top: center.y + 10,
+        fontSize: 20,
+        selectable: false,
+      });
+      canvas.add(bottomLeftLabel);
+
+      const bottomRightLabel = new fabric.Text('IV', {
+        left: center.x + 10,
+        top: center.y + 10,
+        fontSize: 20,
+        selectable: false,
+      });
+      canvas.add(bottomRightLabel);
     }
   }, [canvasRef]);
 
   useEffect(() => {
     if (canvas) {
       const center = canvas.getCenter();
-      canvas.clear(); 
-  
+      canvas.clear();
+
       fabric.Image.fromURL(fileReaderInfo.currentPage, (img) => {
         img.scaleToHeight(canvas.height);
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
@@ -72,27 +110,27 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
         drawnLines.forEach((lineSet) => {
           canvas.add(lineSet.line, lineSet.startText, lineSet.endText);
         });
-  
+
         canvas.renderAll();
       });
-      
-  
-      const horizontalLine = new fabric.Line([0, canvas.height / 2, canvas.width, canvas.height / 2], {
-        strokeWidth: 1,
-        stroke: 'blue',
-        selectable: false,
-      });
+
+      const horizontalLine = new fabric.Line(
+        [0, canvas.height / 2, canvas.width, canvas.height / 2],
+        {
+          strokeWidth: 1,
+          stroke: 'blue',
+          selectable: false,
+        },
+      );
       const verticalLine = new fabric.Line([canvas.width / 2, 0, canvas.width / 2, canvas.height], {
         strokeWidth: 1,
         stroke: 'blue',
         selectable: false,
       });
-  
+
       canvas.add(horizontalLine, verticalLine);
     }
   }, [fileReaderInfo.currentPage, selectedPaperSize]);
-  
-
 
   useEffect(() => {
     if (canvas) {
@@ -139,7 +177,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       let pointer = canvas.getPointer(event.e);
 
       const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
-        strokeWidth: 5, 
+        strokeWidth: 5,
         stroke: 'red',
         selectable: false,
       });
@@ -189,36 +227,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
     });
   }
 
-
-
-
-  // const calculateScale = () => {
-  //   if (canvas && fileReaderInfo.currentPage && selectedPaperSize) {
-  //     const pdfWidth = canvas.backgroundImage.width;
-  //     const pdfHeight = canvas.backgroundImage.height;
-
-  //     let paperSize = 'Unknown';
-  //     let targetWidth, targetHeight;
-
-  //     standardSizes.forEach((size) => {
-  //       if (size.name === selectedPaperSize) {
-  //         paperSize = size.name;
-  //         targetWidth = size.width * 72; 
-  //         targetHeight = size.height * 72;
-  //       }
-  //     });
-
-  //     if (targetWidth && targetHeight) {
-  //       const scaleX = targetWidth / pdfWidth;
-  //       const scaleY = targetHeight / pdfHeight;
-
-  //       canvas.setZoom(Math.min(scaleX, scaleY));
-  //       canvas.renderAll();
-  //     } else {
-  //       alert('Invalid paper size selected.');
-  //     }
-  //   }
-  // };
+  
 
   const calculateScale = () => {
     if (canvas && fileReaderInfo.currentPage && selectedPaperSize) {
@@ -240,7 +249,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       let distanceScale = parseFloat(distanceRatioParts[1]) / parseFloat(distanceRatioParts[0]);
 
       if (targetWidth && targetHeight) {
-        const scaleX = (targetWidth / pdfWidth) * distanceScale; 
+        const scaleX = (targetWidth / pdfWidth) * distanceScale;
         const scaleY = (targetHeight / pdfHeight) * distanceScale;
 
         canvas.setZoom(Math.min(scaleX, scaleY));
@@ -250,6 +259,63 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (canvas) {
+      const center = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+      };
+
+      const scale = 10;
+
+      const buttonA = new fabric.Text('A', {
+        left: center.x + 2 * scale,
+        top: center.y - 2 * scale,
+        fontSize: 20,
+        selectable: true,
+        hasControls: false,
+      });
+
+      const buttonB = new fabric.Text('B', {
+        left: center.x - 2 * scale,
+        top: center.y - 2 * scale,
+        fontSize: 20,
+        selectable: true,
+        hasControls: false,
+      });
+
+      canvas.add(buttonA, buttonB);
+
+      const updateDistance = () => {
+        const distanceCanvasUnits = Math.sqrt(
+          Math.pow(buttonB.left - buttonA.left, 2) + Math.pow(buttonB.top - buttonA.top, 2),
+        );
+
+        console.log('Distance between buttons in canvas units:', distanceCanvasUnits);
+        console.log(
+          'Button A Coordinates (x, y):',
+          (buttonA.left - center.x) / scale,
+          (center.y - buttonA.top) / scale,
+        );
+        console.log(
+          'Button B Coordinates (x, y):',
+          (buttonB.left - center.x) / scale,
+          (center.y - buttonB.top) / scale,
+        );
+      };
+
+      buttonA.on('moving', function () {
+        updateDistance();
+      });
+
+      buttonB.on('moving', function () {
+        updateDistance();
+      });
+
+      canvas.renderAll();
+    }
+  }, [canvas]);
 
   return (
     <div ref={mainboardRef} className={styles.mainboard}>
@@ -272,7 +338,7 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
               </option>
             ))}
           </select>
-          <select value={selectedDistanceRatio} onChange={onDistanceRatioChange}> 
+          <select value={selectedDistanceRatio} onChange={onDistanceRatioChange}>
             {scalingRatio.map((ratio) => (
               <option key={ratio} value={ratio}>
                 {ratio}
@@ -282,6 +348,32 @@ const MainBoard = ({ aspectRatio = 4 / 3 }) => {
           <button type="button" onClick={calculateScale} disabled={!fileReaderInfo.file}>
             Scale
           </button>
+          <div style={{ width: '60px', display: 'flex', justifyContent: 'space-between' }}>
+            <div>
+              <button
+                style={{
+                  marginLeft: '10px',
+                  borderRadius: '50%',
+                  background: 'red',
+                  border: 'none',
+                }}
+              >
+                A
+              </button>
+            </div>
+            <div>
+              <button
+                style={{
+                  marginLeft: '10px',
+                  borderRadius: '50%',
+                  background: 'red',
+                  border: 'none',
+                }}
+              >
+                B
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <canvas ref={canvasRef} id="canvas" />
